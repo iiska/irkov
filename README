@@ -1,0 +1,5 @@
+= Irkov =
+
+Will be an ircbot which chats using text generated with Markov chain.
+Input data for the chain would be read from older irc logs, or even from
+the logs of different channel.
