@@ -60,20 +60,23 @@ class Irkov < Net::IRC::Client
 
   def on_message(m)
     super
-    p m
     # This may be network dependant but at least in IRCnet End of MOTD
     # is command 376.
     #if (/End of MOTD/.match(m) and (@joined_channels == []))
     if (m.command == '376') and (@joined_channels == [])
       post JOIN, @config['channel']
       @joined_channels << @config['channel']
-    elsif m.command == PRIVMSG
+    elsif (m.command == PRIVMSG) and
+        ( !@last_msg_time or ((Time.now - @last_msg_time) > 1))
       channel, msg = m.params
       re = Regexp.new(@config['nick'], true)
-      if (re.match(msg) or re.match(channel)) and
-          ( !@last_msg_time or ((Time.now - @last_msg_time) > 1))
-        a = msg.split(' ').select{|s| !re.match(s)}
-        w = a[rand(a.size)] or nil
+      a = msg.split(' ').select{|s| !re.match(s)}
+      w = a[rand(a.size)] or nil
+      if re.match(msg) and !re.match(channel)
+        post PRIVMSG, channel, say(w)
+        @last_msg_time = Time.now
+      elsif re.match(channel)
+        channel = /^(.+)!/.match(m.prefix)[1]
         post PRIVMSG, channel, say(w)
         @last_msg_time = Time.now
       end
