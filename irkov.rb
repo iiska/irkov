@@ -5,7 +5,11 @@ require 'markov_chain'
 # Parse a few random irc log files from the directories given
 # as command line parameters.
 class Irkov
-  def initialize(dirs)
+  def initialize(server,nick,channel,dirs)
+    init_markov(dirs)
+  end
+
+  def init_markov(dirs)
     files = []
     dirs.each{|arg|
       if (File.directory?(arg))
@@ -18,7 +22,7 @@ class Irkov
     }
 
     selected = []
-    5.times{
+    10.times{
       selected << files.delete_at(rand(files.size))
     }
 
@@ -39,10 +43,9 @@ class Irkov
     (4 + rand(10)).times{|c|
       msg << @markov.next(msg[c-1])
     }
-
-    return msg.join(' ')
+    msg.join(' ')
   end
 end
 
-bot = Irkov.new(ARGV)
+bot = Irkov.new("irc.oulu.fi", "irkov", "#ossaajat", ARGV)
 puts bot.say
