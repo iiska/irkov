@@ -22,9 +22,11 @@ class MarkovChain
   end
 
   def next(w)
-    w =  @words.keys[rand(@words.keys.size)] if !w
-    return "" if !@words[w]
-    next_words = @words[w]
+    if @words[w]
+      next_words = @words[w]
+    else
+      next_words = @words[@words.keys[rand(@words.keys.size)]]
+    end
 
     sum = next_words.inject(0) {|sum,v| sum += v[1]}
     r = rand(sum) + 1
