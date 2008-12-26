@@ -1,0 +1,8 @@
+# YAML formatted configuration file for Irkov bot
+server: irc.opoy.fi
+port: 6667
+nick: irkov
+realname: Irkov bot http://github.com/iiska/irkov/
+logdirs:
+        - /home/iiska/irclogs/#ossaajat
+channel: #ossaajat

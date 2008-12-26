@@ -2,26 +2,27 @@
 
 require 'rubygems'
 require 'net/irc' # net-irc gem
+require 'yaml'
 
 require 'markov_chain'
 
 # Parse a few random irc log files from the directories given
 # as command line parameters.
 class Irkov < Net::IRC::Client
-  def initialize(server,nick,channel,dirs)
-    @directories = dirs
+  def initialize(config_file)
+    @config = YAML::load(File.open(config_file))
     @joined_channels = []
     refresh_markov
-    super(server,'6667', {
-            :nick => nick,
-            :user => nick,
-            :real => 'Irkov bot http://github.com/iiska/irkov/'
+    super(@config['server'],@config['port'], {
+            :nick => @config['nick'],
+            :user => @config['nick'],
+            :real => @config['realname']
           })
   end
 
   def refresh_markov
     files = []
-    @directories.each{|arg|
+    @config['logdirs'].each{|arg|
       if (File.directory?(arg))
         Dir.new(arg).each {|f|
           files << arg + '/' + f if File.file?(arg + '/' + f)
@@ -48,8 +49,8 @@ class Irkov < Net::IRC::Client
     @markov = MarkovChain.new(lines.join(' '))
   end
 
-  def say
-    msg = []
+  def say(w)
+    msg = [@markov.next(w)]
     (4 + rand(10)).times{|c|
       msg << @markov.next(msg[c-1])
     }
@@ -58,16 +59,27 @@ class Irkov < Net::IRC::Client
 
   def on_message(m)
     super
+    p m
     if (/End of MOTD/.match(m) and (@joined_channels == []))
-      post JOIN, "#ossaajat"
-      @joined_channels << "#ossaajat"
-    elsif (/[Ii]rkov/.match(m) and (@joined_channels.include?('#ossaajat'))) and
+      post JOIN, @config['channel']
+      @joined_channels << @config['channel']
+    elsif (/[Ii]rkov/.match(m) and (@joined_channels.include?(@config['channel']))) and
         ( !@last_msg_time or ((Time.now - @last_msg_time) > 5))
-      post PRIVMSG, "#ossaajat", say
+      post PRIVMSG, @config['channel'], say
       @last_msg_time = Time.now
     end
   end
 end
 
-bot = Irkov.new("irc.opoy.fi", "irkov", "#ossaajat", ARGV)
-bot.start
+config_file = [ARGV[0],
+               './config.yml',
+               './irkovrc',
+               '~/.irkovrc'].select{|f|
+  f && File.file?(f)
+}.first
+
+if config_file
+  Irkov.new(config_file).start
+else
+  puts "No config file found."
+end
