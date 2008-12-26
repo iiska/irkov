@@ -1,5 +1,7 @@
 #! /usr/bin/env ruby
 
+require 'markov_chain'
+
 # Parse a few random irc log files from the directories given
 # as command line parameters.
 files = []
@@ -27,4 +29,11 @@ selected.each{|f|
   }
 }
 
-puts lines.to_s
+m = MarkovChain.new(lines.join(' '))
+
+msg = []
+(4 + rand(10)).times{|c|
+  msg << m.next(msg[c-1])
+}
+
+puts msg.join(' ')

@@ -3,13 +3,14 @@
 #
 # @words is lookup table for each word,
 # which contains hashes of amounts for next words.
+
 class MarkovChain
   def initialize(text)
     @words = Hash.new
 
     a = text.split
     a.each_with_index{|w,i|
-      add(w, a[i-1] if i <= a.size-2)
+      add(w, a[i-1]) if i <= a.size-2
     }
   end
 
@@ -21,6 +22,7 @@ class MarkovChain
   end
 
   def next(w)
+    w =  @words.keys[rand(@words.keys.size)] if !w
     return "" if !@words[w]
     next_words = @words[w]
 
