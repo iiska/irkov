@@ -3,7 +3,7 @@ IRKOV
 Irkov is an irc bot which will generate random thing to say using
 Markov chains and existing irssi logs.
 
-At this point bot support only single channel, but private chat queries are
+At this point bot supports only single channel, but private chat queries are
 also possible.
 
 
