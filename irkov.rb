@@ -19,9 +19,12 @@ selected = []
 }
 
 lines = []
-re = Regexp.new('^\d{2}:\d{2} +<[^>]> +(.*)')
+re = Regexp.new('^\d\d:\d\d +<.+> +(.*)$')
 selected.each{|f|
   File.new(f).each{|l|
-    puts l
+    m = re.match(l)
+    lines << m[1] if m
   }
 }
+
+puts lines.to_s
