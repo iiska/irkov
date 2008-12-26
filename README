@@ -1,5 +1,24 @@
-= Irkov =
+IRKOV
 
-Will be an ircbot which chats using text generated with Markov chain.
-Input data for the chain would be read from older irc logs, or even from
-the logs of different channel.
+Irkov is an irc bot which will generate random thing to say using
+Markov chains and existing irssi logs.
+
+At this point bot support only single channel, but private chat queries are
+also possible.
+
+
+CONFIGURATION
+
+Configuration file is provided with the only command line parameter, otherwise
+first of the following locations is used ./config.yml, ./irkovrc,
+~/.irkovrc.
+
+Example config can be found from config.yml.
+
+
+USAGE
+
+./irkov.rb [config_file]
+
+
+-- Juhamatti Niemelä < iiska (AT) iki DOT fi >
