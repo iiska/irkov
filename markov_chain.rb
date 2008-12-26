@@ -10,7 +10,7 @@ class MarkovChain
 
     a = text.split
     a.each_with_index{|w,i|
-      add(w, a[i-1]) if i <= a.size-2
+      add(w, a[i+1]) if i <= a.size-2
     }
   end
 
