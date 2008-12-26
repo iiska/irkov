@@ -10,8 +10,13 @@ require 'markov_chain'
 class Irkov < Net::IRC::Client
   def initialize(server,nick,channel,dirs)
     @directories = dirs
+    @joined_channels = []
     refresh_markov
-    super(server,6667)
+    super(server,'6667', {
+            :nick => nick,
+            :user => nick,
+            :real => 'Irkov bot http://github.com/iiska/irkov/'
+          })
   end
 
   def refresh_markov
@@ -52,8 +57,17 @@ class Irkov < Net::IRC::Client
   end
 
   def on_message(m)
+    super
+    if (/End of MOTD/.match(m) and (@joined_channels == []))
+      post JOIN, "#ossaajat"
+      @joined_channels << "#ossaajat"
+    elsif (/[Ii]rkov/.match(m) and (@joined_channels.include?('#ossaajat'))) and
+        ( !@last_msg_time or ((Time.now - @last_msg_time) > 5))
+      post PRIVMSG, "#ossaajat", say
+      @last_msg_time = Time.now
+    end
   end
 end
 
-bot = Irkov.new("irc.oulu.fi", "irkov", "#ossaajat", ARGV)
-puts bot.say
+bot = Irkov.new("irc.opoy.fi", "irkov", "#ossaajat", ARGV)
+bot.start
