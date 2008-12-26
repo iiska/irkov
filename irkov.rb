@@ -1,17 +1,22 @@
 #! /usr/bin/env ruby
 
+require 'rubygems'
+require 'net/irc' # net-irc gem
+
 require 'markov_chain'
 
 # Parse a few random irc log files from the directories given
 # as command line parameters.
-class Irkov
+class Irkov < Net::IRC::Client
   def initialize(server,nick,channel,dirs)
-    init_markov(dirs)
+    @directories = dirs
+    refresh_markov
+    super(server,6667)
   end
 
-  def init_markov(dirs)
+  def refresh_markov
     files = []
-    dirs.each{|arg|
+    @directories.each{|arg|
       if (File.directory?(arg))
         Dir.new(arg).each {|f|
           files << arg + '/' + f if File.file?(arg + '/' + f)
@@ -22,7 +27,7 @@ class Irkov
     }
 
     selected = []
-    10.times{
+    20.times{
       selected << files.delete_at(rand(files.size))
     }
 
@@ -44,6 +49,9 @@ class Irkov
       msg << @markov.next(msg[c-1])
     }
     msg.join(' ')
+  end
+
+  def on_message(m)
   end
 end
 
