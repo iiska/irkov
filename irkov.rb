@@ -111,7 +111,7 @@ config_file = [ARGV[0],
 }.first
 
 if config_file
-  p Irkov.new(config_file).say#.start
+  Irkov.new(config_file).start
 else
   puts "No config file found."
 end
