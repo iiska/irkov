@@ -5,12 +5,14 @@
 # which contains hashes of amounts for next words.
 
 class MarkovChain
-  def initialize(text)
+  def initialize(lines)
     @words = Hash.new
 
-    a = text.split
-    a.each_with_index{|w,i|
-      add(w, a[i+1]) if i <= a.size-2
+    lines.each{|text|
+      a = text.split
+      a.each_with_index{|w,i|
+        add(w, a[i+1]) if i <= a.size-2
+      }
     }
   end
 
@@ -22,11 +24,9 @@ class MarkovChain
   end
 
   def next(w)
-    if @words[w]
-      next_words = @words[w]
-    else
-      next_words = @words[@words.keys[rand(@words.keys.size)]]
-    end
+    w = @words.keys[rand(@words.keys.size)] if !w
+    return "" if !@words[w]
+    next_words = @words[w]
 
     sum = next_words.inject(0) {|sum,v| sum += v[1]}
     r = rand(sum) + 1

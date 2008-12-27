@@ -1,4 +1,5 @@
 #! /usr/bin/env ruby
+# -*- coding: utf-8 -*-
 
 require 'rubygems'
 require 'net/irc' # net-irc gem
@@ -33,28 +34,48 @@ class Irkov < Net::IRC::Client
     }
 
     selected = []
-    20.times{
+    40.times{
       selected << files.delete_at(rand(files.size))
     }
 
     lines = []
     # Regexp is for irssi log format. http://irssi.org
     re = Regexp.new('^\d\d:\d\d +<.+> +(.*)$')
+    # Match case insensitive normal finnish words, which may end
+    # to . , ! or ?
+    normal_word = Regexp.new('([a-zäöå\344\366][a-zäöå\344\366]+)[\.,?!]?', true)
     selected.each{|f|
       File.new(f).each{|l|
         m = re.match(l)
-        lines << m[1] if m
+        # Make all normal words downcase, and remove , . ! or ? from the end
+        s = m[1].split(' ').map{|w|
+          n = normal_word.match(w)
+          if n
+            n[1].downcase
+          else
+            w
+          end
+        } if m
+        lines << s.join(' ') if m
       }
     }
 
-    @markov = MarkovChain.new(lines.join(' '))
+    @markov = MarkovChain.new(lines)
   end
 
-  def say(w)
-    msg = [@markov.next(w)]
-    (4 + rand(10)).times{|c|
-      msg << @markov.next(msg[c-1])
-    }
+  def say
+    msg = []
+    while msg == [] do
+      msg = []
+      (6 + rand(10)).times{|c|
+        s = @markov.next(msg[c-1])
+        if s == ''
+          break
+        else
+          msg << s
+        end
+      }
+    end
     msg.join(' ')
   end
 
@@ -70,14 +91,12 @@ class Irkov < Net::IRC::Client
         ( !@last_msg_time or ((Time.now - @last_msg_time) > 1))
       channel, msg = m.params
       re = Regexp.new(@config['nick'], true)
-      a = msg.split(' ').select{|s| !re.match(s)}
-      w = a[rand(a.size)] or nil
       if re.match(msg) and !re.match(channel)
-        post PRIVMSG, channel, say(w)
+        post PRIVMSG, channel, say
         @last_msg_time = Time.now
       elsif re.match(channel)
         channel = /^(.+)!/.match(m.prefix)[1]
-        post PRIVMSG, channel, say(w)
+        post PRIVMSG, channel, say
         @last_msg_time = Time.now
       end
     end
@@ -92,7 +111,7 @@ config_file = [ARGV[0],
 }.first
 
 if config_file
-  Irkov.new(config_file).start
+  p Irkov.new(config_file).say#.start
 else
   puts "No config file found."
 end

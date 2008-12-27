@@ -21,9 +21,5 @@ USAGE
 ./irkov.rb [config_file]
 
 
-KNOWN BUG
-
-* Repeats itself in some situations
-
 
 -- Juhamatti Niemelä < iiska (AT) iki DOT fi >
