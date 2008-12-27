@@ -6,6 +6,11 @@ Markov chains and existing irssi logs.
 At this point bot supports only single channel, but private chat queries are
 also possible.
 
+REQUIRED GEMS
+
+  - net-irc
+  - yaml
+
 
 CONFIGURATION
 
