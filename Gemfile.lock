@@ -1,0 +1,10 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    net-irc (0.0.9)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  net-irc
