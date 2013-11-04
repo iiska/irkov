@@ -1,0 +1,20 @@
+#! /usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+$:.unshift File.join(File.dirname(__FILE__), *%w{ .. lib })
+
+require 'bundler/setup'
+require 'irkov'
+
+config_file = [ARGV[0],
+               './config.yml',
+               './irkovrc',
+               '~/.irkovrc'].select{|f|
+  f && File.file?(f)
+}.first
+
+if config_file
+  Irkov::Base.new(config_file).start
+else
+  puts "No config file found."
+end
